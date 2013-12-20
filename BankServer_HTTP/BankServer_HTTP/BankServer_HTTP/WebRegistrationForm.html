@@ -1,0 +1,114 @@
+﻿<html>
+
+<head>
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+<style media="screen" type="text/css">
+h2 {text-align:center; font: bold 30px arial,sans-serif;}
+body {text-align:center;}
+
+input, textarea {   
+	padding: 9px;  
+	border: solid 1px #E5E5E5;  
+	outline: 0;  
+	font: normal 13px/100% Verdana, Tahoma, sans-serif;  
+	width: 200px;  
+	background: #FFFFFF url('bg_form.png') left top repeat-x;  
+	background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));  
+	background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);  
+	box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+	-moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+	-webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;  
+} 
+	
+textarea {   
+	width: 400px;  
+	max-width: 400px;  
+	height: 150px;  
+	line-height: 150%;  
+	}  
+	
+input:hover, textarea:hover,  
+input:focus, textarea:focus {   
+	border-color: #C9C9C9;   
+	-webkit-box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 8px;  
+}  
+  
+.form label {   
+	margin-left: 10px;   
+	color: #999999;   
+}  
+</style>
+</head>
+
+<body>
+<h2>Bank Registration Form</h2>
+<form id="form"> 
+<input id="FirstName" type="text" name="firstname" placeholder="Enter First Name"/>
+<br>
+<br>
+<input id="LastName" type="text" name="lastname" placeholder="Enter Last Name" />
+<br>
+<br>
+<input id="Username" type="text" name="username" placeholder="Create Username" />
+<br>
+<br>
+<input id="Password" type="password" name="password" placeholder="Create Password" />
+<br>
+<br>
+<input id="Amount" type="text" name="amount" placeholder="Deposit Amount" />
+<br>
+<br>
+<input id="input" type="submit" name="submit" value="Submit" />
+</form>
+
+<script>
+    $.fn.formToJSON = function () {
+        var objectGraph = {};
+        function add(objectGraph, name, value) {
+            if (name.length == 1) {
+                objectGraph[name[0]] = value;
+            }
+            else {
+                if (objectGraph[name[0]] == null) {
+                    objectGraph[name[0]] = {};
+                }
+                add(objectGraph[name[0]], name.slice(1), value);
+            }
+        };
+
+        $(this).children('input, textarea').each(function () {
+            if ($(this).attr('name') != 'submit') {
+                add(objectGraph, $(this).attr('name').split('.'), $(this).val());
+            }
+        });
+        return JSON.stringify(objectGraph);
+    };
+
+    $.ajaxSetup({
+        contentType: "application/json; charset=utf-8",
+        dataType: "json"
+    });
+
+    $(document).ready(function () {
+        $('#input').click(function () {
+
+            //alert($("#form").formToJSON());				//<----------------- USED TO SHOW THE JSON POST, UNCOMMENT IF WANT TO SEE!
+
+            var send = $("#form").formToJSON();
+            $.ajax({
+                url: "http://ENTER-URL-HERE.com",        //*****ENTER URL OF BANK SERVER HERE*****
+                type: "POST",
+                data: send,
+                error: function (xhr, error) {
+                    alert('Error! Status = ' + xhr.status + ' Message = ' + error);
+                },
+
+
+
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>
