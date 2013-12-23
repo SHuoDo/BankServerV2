@@ -169,10 +169,12 @@ namespace BankServer_HTTP
                     string loginPassword = (string)requestBodyInJson.SelectToken("password");
                     string authString = loginUserName + loginPassword;
 
-                    GetProfileResultType UserProf = RequestWorker.getUserProfile(DBHandler, loginUserName);
+                    //GetProfileResultType UserProf = RequestWorker.getUserProfile(DBHandler, loginUserName);
                     //if (UserProf.status == ResultCodeType.UPDATE_USER_PROFILE_SUCCESS)
                     if (RequestWorker.authenticateUser(DBHandler, authString))
                     {
+                        GetProfileResultType UserProf = RequestWorker.getUserProfile(DBHandler, loginUserName);
+
                         //populate messageType fields 
                         messageType = new JsonNumericValue("code", (int)clientOutgoingCodeEnum.OUT_CODE_LOGIN_SUCCESS);
                         details = new JsonStringValue("details", "Log in success");
@@ -184,7 +186,7 @@ namespace BankServer_HTTP
                         JsonStringValue firstNameReturn = new JsonStringValue("firstName", (string)UserProf.profile.firstName);
                         JsonStringValue lastNameReuturn = new JsonStringValue("lastName", (string)UserProf.profile.lastName);
                         JsonStringValue emailReturn = new JsonStringValue("email", (string)UserProf.profile.email);
-                        JsonStringValue addressReturn = new JsonStringValue("address1", (string)UserProf.profile.address);
+                        JsonStringValue addressReturn = new JsonStringValue("address", (string)UserProf.profile.address);
                         JsonStringValue phoneNumberReturn = new JsonStringValue("phoneNumber", (string)UserProf.profile.phoneNumber);
 
                         JsonObjectCollection clientInfo = new JsonObjectCollection(); ;
@@ -196,6 +198,7 @@ namespace BankServer_HTTP
                         clientInfo.Add(emailReturn);
                         clientInfo.Add(addressReturn);
                         clientInfo.Add(phoneNumberReturn);
+                        clientInfo.Name = "clientInfo";
 
                         defineResponse.Add(messageType);
                         defineResponse.Add(details);
@@ -217,10 +220,10 @@ namespace BankServer_HTTP
 
 
             //finalize outgoing JSON message
-            JsonObjectCollection completeResponse = new JsonObjectCollection();
-            completeResponse.Add(defineResponse);
+            //JsonObjectCollection completeResponse = new JsonObjectCollection();
+            //completeResponse.Add(defineResponse);
 
-            byte[] buffer = JsonStringToByteArray(completeResponse.ToString());
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(defineResponse.ToString());
 
             p.response.ContentLength64 = buffer.Length;
             p.response.OutputStream.Write(buffer, 0, buffer.Length);
@@ -228,18 +231,18 @@ namespace BankServer_HTTP
             p.response.Close();
         }
 
-        public static byte[] JsonStringToByteArray(string jsonString)
+       /* public static byte[] JsonStringToByteArray(string jsonString)
         {
             var encoding = new UTF8Encoding();
             return encoding.GetBytes(jsonString.Substring(1, jsonString.Length - 2));
-        }
+        }*/
 
-        public static JsonObjectCollection insert(JsonObjectCollection obj, JsonObject item, JsonObject newItem)
+       /* public static JsonObjectCollection insert(JsonObjectCollection obj, JsonObject item, JsonObject newItem)
         {
             obj.Remove(item);
             obj.Add(newItem);
             return obj;
-        }
+        }*/
     }
 }
 
